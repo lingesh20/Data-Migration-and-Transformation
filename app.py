@@ -2,6 +2,7 @@ import downloadfile as file
 import extractfile as extract
 import exportfiletoS3 as exporttoS3
 import s3toRds as s3rds
+import os
 
 def main():
     
@@ -9,16 +10,23 @@ def main():
 
     extract.extract_file()
 
-    local_file_path = 'C:\Users\linge\OneDrive\Documents\capstone2\CIK0000000013.json'
-    bucket_name = 'capproject2'
-    filename = local_file_path.split('/')[-1]
-    s3_key = filename
+    local_file_path = 'C:/Users/linge/OneDrive/Documents/capstone2/inputfiles'
+    bucket_name = 'guviproject2'
 
-    exporttoS3.upload_file_to_s3(local_file_path,bucket_name,s3_key)
+    for filename in os.listdir(local_file_path):
+        if filename.endswith(".json"):
+            # Construct local file path
+            file_path  = os.path.join(local_file_path, filename)
+            
+            # Use the filename as the S3 key
+            s3_key = filename
+            
+            # Upload the file to S3
+            exporttoS3.upload_file_to_s3(file_path, bucket_name, s3_key)
 
-    result = s3rds.s3_to_RDS(bucket_name,filename)
+            result = s3rds.s3_to_RDS(bucket_name,filename)
 
-    print(result)
+            print(result)
 
 if __name__ == "__main__":
     main()
